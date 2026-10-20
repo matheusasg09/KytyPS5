@@ -27,9 +27,9 @@ Vulkan-Headers, SPIRV-Tools/Headers, SDL3 e demais componentes fixados vêm do u
 ## Git e simulação de atualização
 
 - Autenticação GitHub válida para `matheusasg09`; nenhuma autenticação nova iniciada.
-- Não foi encontrado fork do projeto entre os repositórios pessoais; `matheusasg09/KytyPS5` retornou 404.
+- Na inspeção inicial, `matheusasg09/KytyPS5` retornou 404. Após autorização explícita, o [fork público pessoal](https://github.com/matheusasg09/KytyPS5) foi criado. A API confirmou `fork: true`, parent `KytyPS5/KytyPS5`, proprietário `matheusasg09` e branch padrão `main`.
 - `upstream`: `https://github.com/KytyPS5/KytyPS5.git`.
-- `origin`: `https://github.com/matheusasg09/KytyPS5.git`, destino preparado, ainda sem fork criado.
+- `origin`: `https://github.com/matheusasg09/KytyPS5.git`, fork existente e verificado. Fetch concluído; `origin/main`, `upstream/main` e `main` apontavam para o commit oficial de base nesta conferência.
 - Ambos os push URLs: `DISABLED`. Nenhum push, PR, issue, release ou execução Actions foi feito.
 - `main` acompanha `upstream/main`; `develop` contém a infraestrutura pessoal. Convenções `feature/*`, `fix/*` e `experiment/*` documentadas sem criar branches vazias.
 - Identidade local: `matheusasg09`, email já utilizado no projeto Agent Memory e associado à conta conforme inventário compartilhado. Nenhum token ou arquivo de credenciais foi aberto.
@@ -64,17 +64,17 @@ Avisos observados durante compilação: validação XML de protocolo Wayland for
 
 - Setup completo, setup com `-SkipImageBuild`, status, início de shell por stdin fechado e relatório de limpeza executados no Windows PowerShell 5.1.
 - Todos os scripts PowerShell passaram no parser dessa versão. Arquivos são UTF-8 BOM com CRLF; Bash usa LF e passou em `bash -n` dentro do container.
-- `clean.ps1` executado somente em modo de relatório. Nenhum diretório, imagem, volume, container ou cache foi excluído.
+- `clean.ps1` executado somente em modo de relatório. Nenhum diretório, imagem, volume ou cache foi excluído. A remoção específica dos containers abaixo ocorreu em etapa separada, após autorização.
 - Dois containers distintos, `kytyps5-persistence-a` e `kytyps5-persistence-b`, executaram `validate-container.sh`: UID 1000, ferramentas, acesso aos três volumes, marcador persistente e SHA-256 de CMakeLists.txt preservados entre containers. Abertura de `.git/HEAD` para escrita foi negada pelo mount somente leitura.
 - Código persistente no Windows; builds, caches e logs persistentes em `kytyps5-dev_builds`, `kytyps5-dev_caches` e `kytyps5-dev_logs`.
-- Persistência após **remoção** de container ainda pendente da confirmação separada exigida pela política global. Os containers de validação foram preservados, sem `--rm`.
+- Persistência após **remoção** de containers comprovada: depois de remover os 12 containers autorizados, `kytyps5-post-removal-check` repetiu a validação, conferiu os hashes SHA-256 dos emuladores Debug e Release, executou `--help` do Release instalado e confirmou caches e logs. Exit 0; esse container também foi removido conforme autorizado. Código-fonte e metadados dos três volumes permaneceram intactos.
 
-Foi preparado o [manifesto local de remoção](../.local/container-removal-manifest.json), ignorado pelo Git: 12 containers parados deste projeto, IDs e mounts registrados, 196.608 bytes de camadas graváveis no total. Propõe também criar, testar e remover o container de nome exato `kytyps5-post-removal-check` após a remoção dos anteriores, para comprovar a persistência. Código, histórico, imagens e os três volumes ficam preservados. Nenhuma remoção foi executada. O manifesto exige revalidação e autorização explícita antes de executar essa etapa.
+O [manifesto local de remoção](../.local/container-removal-manifest.json), ignorado pelo Git, registra a autorização e conclusão. Antes da remoção, os 12 containers parados foram revalidados por ID, estado, timestamps, tamanho, imagem e mounts, além do contexto Docker e hash do código. A API Docker 1.51 foi usada somente no processo de inspeção para obter os tamanhos exatos, sem alterar configurações. Foram removidos esses 12 containers e o container adicional de conferência, sem força nem exclusão de volumes: 212.992 bytes de camadas graváveis no total, sem estimativa de recuperação física adicional. Código, histórico, imagens e os três volumes foram preservados. Evidência do teste: `validation-post-removal.log`, local e ignorado pelo Git.
 
 ## Limites e pendências
 
 O ambiente compila Linux x86-64, sem gerar `.exe` Windows. GPU/Vulkan em hardware, áudio real, controles, jogos, attach ptrace a processos alheios, suite gráfica completa e execução Windows não foram validados. GDB com processo filho foi validado no diagnóstico de fibers. Não foram montados GPU, pastas pessoais ou materiais proprietários PlayStation. A alternativa Windows por runner/VM isolado está em DEVELOPMENT.md; nenhum recurso remoto foi criado ou disparado.
 
-Fork público pessoal pendente de autorização explícita. Fork de upstream público no GitHub preserva visibilidade pública. A criação copiará o histórico oficial, sem publicar automaticamente as mudanças locais de develop. A sincronização real exige que o fork exista e seja validado; a simulação não substitui essa verificação.
+O fork público pessoal está criado e verificado. As mudanças locais de `develop` continuam sem push. A sincronização foi validada por simulação e pelo modo `-Plan`; não foi necessário integrar commits oficiais novos, pois as três referências de `main` coincidiram na conferência após o fetch.
 
 Arquivos adicionados: Dockerfile, compose.yaml, .dockerignore, .gitattributes, AGENTS.md, DEVELOPMENT.md, este relatório e scripts de setup, início, build, testes, análise, status, sincronização, simulação, limpeza e validação de persistência. Arquivo original modificado: somente .gitignore, com aviso datado para os arquivos locais ignorados.

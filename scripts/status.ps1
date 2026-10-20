@@ -10,4 +10,4 @@ Invoke-Checked -Command git -Arguments @('-C', $script:ProjectRoot, 'branch', '-
 Invoke-Checked -Command git -Arguments @('-C', $script:ProjectRoot, 'submodule', 'status', '--recursive')
 Assert-Docker
 Invoke-Compose -Arguments @('ps', '--all')
-Write-Host 'origin é um destino planejado até a criação e verificação do fork. Consulte DEVELOPMENT.md.'
+Write-Host 'Remotos e branches estão listados acima. O setup bloqueia push; envios exigem autorização. Consulte DEVELOPMENT.md.'

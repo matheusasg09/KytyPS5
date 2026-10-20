@@ -76,7 +76,7 @@ O build Debug contém símbolos. GDB existe no container, mas depuração com pt
 
 ## Git, branches e Codex
 
-`upstream` aponta para `https://github.com/KytyPS5/KytyPS5.git`; `origin` está preparado para `https://github.com/matheusasg09/KytyPS5.git`. O fork ainda depende de autorização e verificação no GitHub. Para não bloquear trabalho local, foi clonado o repositório oficial sem reescrever o histórico; após criar o fork não é necessário reclonar. Forks de repositórios públicos mantêm a visibilidade pública, conforme a [documentação do GitHub](https://docs.github.com/en/pull-requests/reference/forks#visibility-of-forks), portanto este destino precisa de aprovação explícita. Não foi criado um repositório privado independente.
+`upstream` aponta para `https://github.com/KytyPS5/KytyPS5.git`; `origin` aponta para o [fork pessoal](https://github.com/matheusasg09/KytyPS5), criado com autorização explícita e verificado em 2026-10-20. A API confirmou proprietário, vínculo com o upstream, visibilidade pública e branch padrão `main`; o fetch de origin confirmou o mesmo commit oficial de base. O clone inicial veio do repositório oficial, preservando integralmente seu histórico, e foi conectado ao fork sem necessidade de reclonar. Forks de repositórios públicos mantêm a visibilidade pública, conforme a [documentação do GitHub](https://docs.github.com/en/pull-requests/reference/forks#visibility-of-forks). As alterações locais de `develop` ainda não foram enviadas.
 
 `main` acompanha `upstream/main` e permanece sem customizações. `develop` contém a infraestrutura pessoal. Prefixos `feature/*`, `fix/*` e `experiment/*` são convenções, não branches vazias criadas sem uma tarefa.
 
