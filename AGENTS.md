@@ -5,6 +5,7 @@ Leia também as políticas globais e C:/Users/mathe/projetos/AGENTS.md.
 
 - Leia README.md, DEVELOPMENT.md, CMakeLists.txt, src/utils.cmake e os módulos afetados antes de editar.
 - Preserve C++20, Clang, padrões existentes, avisos de copyright e licenças. Não faça refatorações amplas sem necessidade.
+- Para C++ use somente o formatador oficial 22.1.3 pelo serviço quality e o hook conectado por scripts/install-hooks.ps1. Não use clang-format da imagem dev nem formate o repositório inteiro. Preserve índices e arquivos parcialmente staged; nunca burle o hook.
 - Não instale compiladores, Qt, SDKs ou dependências no Windows. Use Docker e o backend existente, sem configurar WSL ou alterar Docker globalmente.
 - Trabalhe em develop ou feature/*, fix/* e experiment/*. Nunca implemente mudanças cotidianas em main, que acompanha upstream/main.
 - Preserve o histórico oficial. Sincronize por scripts/sync-upstream.ps1. Não use reset --hard, rebase, amend, force push, descarte de conflitos ou escolha automática de um lado.
@@ -12,6 +13,7 @@ Leia também as políticas globais e C:/Users/mathe/projetos/AGENTS.md.
 - Priorize estabilidade, compatibilidade Windows/Linux e desempenho. Acrescente regressões focadas quando viável e documente alterações arquiteturais.
 - Compile com bash scripts/build.sh Debug e execute bash scripts/test.sh Release headless pelo serviço dev, seguindo a configuração de testes da CI oficial. Para alterações relevantes, valide também o build Release e testes Debug. O baseline Debug desta preparação apresenta a falha de fiber documentada em docs/ENVIRONMENT-VALIDATION.md; não a desabilite para aparentar sucesso.
 - O conjunto headless não valida GPU, Vulkan em hardware, jogos ou suite completa. Não declare sucesso desses recursos a partir de um build ou de --help.
+- A revisão Windows/Linux está em docs/UPSTREAM-REVIEW.md. Os 32 testes extended-headless passaram em Release; continuam sendo apenas parte dos 57 registrados. Uma ISO/VM não garante GPU Vulkan. Não crie VM, troque backend ou dispare runners sem a autorização aplicável.
 - Não execute builds simultâneos para respeitar o orçamento de recursos. FetchContent Debug usa /cache/deps; Release e análise usam árvores separadas /cache/deps-Release e /cache/deps-Analysis-*.
 - Alterações gráficas exigem validação adicional em ambiente com GPU Vulkan 1.3. Binários Linux são ELF, não executáveis Windows.
 - Revise mudanças de dependências, .gitmodules, CMake e scripts de download antes de executá-las. Não monte credenciais, Docker socket, pastas pessoais ou arquivos proprietários de PlayStation.

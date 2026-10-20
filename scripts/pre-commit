@@ -1,0 +1,14 @@
+#!/bin/sh
+# Windows Git runs this shim; Python/pre-commit execute only inside Docker.
+set -eu
+root=$(git rev-parse --show-toplevel)
+index=$(git rev-parse --path-format=absolute --git-path index)
+regular_index="$(git rev-parse --absolute-git-dir)/index"
+if [ "$index" != "$regular_index" ]; then
+    echo 'Índice alternativo não é compartilhado com Docker. Use git add e depois git commit, sem -a/--only.' >&2
+    exit 1
+fi
+if ! git diff --cached --name-only --diff-filter=ACMR | LC_ALL=C grep -Eq '^src/.*\.(cpp|h|inc)$'; then
+    exit 0
+fi
+docker compose --project-directory "$root" -f "$root/compose.yaml" run --no-deps -T quality python3 scripts/format.py staged

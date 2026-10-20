@@ -1,4 +1,4 @@
-FROM debian:13.1-slim@sha256:a347fd7510ee31a84387619a492ad6c8eb0af2f2682b916ff3e643eb076f925a
+FROM debian:13.1-slim@sha256:a347fd7510ee31a84387619a492ad6c8eb0af2f2682b916ff3e643eb076f925a AS dev
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -19,3 +19,13 @@ ENV CC=clang CXX=clang++ CCACHE_DIR=/cache/ccache CCACHE_MAXSIZE=2G \
 RUN git config --global --add safe.directory /workspace
 WORKDIR /workspace
 CMD ["bash"]
+
+# The upstream pre-commit mirror pins clang-format 22.1.3. Keep its runtime isolated.
+FROM dev AS quality
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/quality \
+    && /opt/quality/bin/pip install --no-cache-dir pre-commit==4.7.0 clang-format==22.1.3
+ENV PATH="/opt/quality/bin:${PATH}" PRE_COMMIT_HOME=/cache/pre-commit PIP_NO_CACHE_DIR=1
+USER developer

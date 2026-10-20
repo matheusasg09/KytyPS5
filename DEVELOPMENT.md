@@ -2,6 +2,8 @@
 
 Ambiente preparado em 2026-10-20 a partir de `KytyPS5/KytyPS5`, commit `7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3`, branch oficial **main**. Consulte `docs/ENVIRONMENT-VALIDATION.md` para resultados observados e pendências. O código do emulador não foi alterado.
 
+A revisão posterior do procedimento oficial e a decisão Windows/Linux estão em [docs/UPSTREAM-REVIEW.md](docs/UPSTREAM-REVIEW.md). Windows e Linux são plataformas principais do upstream. Docker Linux atende builds e testes sem GPU; neste computador, a rota proposta para testar gráficos é compilar Windows em runner isolado e executar o pacote portátil com a GPU nativa, sem toolchain no host. Essa etapa remota ainda não foi autorizada nem executada.
+
 ## Pré-requisitos e início
 
 No Windows são usados somente Git, GitHub CLI, PowerShell e o Docker Desktop existentes. Compiladores, bibliotecas e ferramentas de diagnóstico ficam na imagem. Não configure WSL, Hyper-V, SDKs ou outro backend. Se o Engine estiver parado, inicie o Docker Desktop existente; `docker desktop start` usa sua configuração atual. O serviço exige Linux x86-64.
@@ -14,7 +16,7 @@ powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\scripts\status.p
 powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\scripts\start.ps1
 ```
 
-`setup.ps1` valida o checkout e os remotos, acrescenta remotos/branches locais ausentes em um novo clone, bloqueia push, configura main para acompanhar upstream/main, atualiza submódulos nas revisões fixadas e constrói a imagem. Não move branches existentes nem troca sua branch atual. Não cria o fork nem instala nada no host. `start.ps1` abre um shell; `exit` encerra o processo. Não existe serviço permanente. Containers encerrados são retidos por padrão, pois sua exclusão exige autorização separada. Após autorização específica para containers descartáveis, é possível usar `docker compose run --rm dev`.
+`setup.ps1` valida o checkout e os remotos, acrescenta remotos/branches locais ausentes em um novo clone, bloqueia push, configura main para acompanhar upstream/main, atualiza submódulos nas revisões fixadas e constrói as imagens dev/quality. O setup completo também conecta o hook oficial de formatação ao Docker. Com `-SkipImageBuild`, não constrói imagens nem instala o hook. Não move branches existentes nem troca sua branch atual. Não cria o fork nem instala pacotes no host. `start.ps1` abre um shell; `exit` encerra o processo. Não existe serviço permanente. Containers encerrados são retidos por padrão, pois sua exclusão exige autorização separada. Após autorização específica para containers descartáveis, é possível usar `docker compose run --rm dev`.
 
 O Windows PowerShell 5.1 desta máquina usa política de execução restrita. Os comandos acima aplicam `RemoteSigned` somente ao processo atual, sem mudar a política do usuário ou do sistema. Os scripts usam UTF-8 com BOM para preservar acentos no PowerShell 5.1. Com uma sessão que já permite scripts locais, também é possível invocá-los diretamente.
 
@@ -23,6 +25,7 @@ O Windows PowerShell 5.1 desta máquina usa política de execução restrita. Os
 - Código e histórico: esta pasta Windows, bind mount em `/workspace`. Git interno em `/workspace/.git` é somente leitura para o container; operações Git do projeto ocorrem no Windows.
 - Imagem: `Dockerfile`, base oficial Debian 13.1 slim fixada por digest; `.dockerignore` permite somente o Dockerfile no contexto de build. O código e credenciais não entram na imagem.
 - Serviço: `compose.yaml`, projeto `kytyps5-dev`, UID/GID 1000, 4 CPUs, 10 GiB RAM, sem swap extra, 512 PIDs, sem capacidades, sem portas e sem Docker socket.
+- Serviço `quality`: mesma base dev em camada compartilhada, Python isolado em `/opt/quality`, 1 CPU, 2 GiB, 128 PIDs e somente código, Git somente leitura e cache montados. Usado sob demanda; não há daemon de formatação.
 - Volume `kytyps5-dev_builds`: `/build/Debug`, `/build/Release`, `/build/Analysis-Debug`, `/build/Analysis-Release` e instalações opcionais.
 - Volume `kytyps5-dev_caches`: `/cache/ccache` (limite 2 GiB), `/cache/deps` (FetchContent Debug), `/cache/deps-Release` e `/cache/deps-Analysis-*`. FetchContent guarda fontes e builds auxiliares; cada configuração tem sua própria árvore para evitar misturar bibliotecas Debug/Release. Downloads FFmpeg ficam no volume de build por configuração.
 - Volume `kytyps5-dev_logs`: `/logs`, logs de build, configuração e testes com data UTC e PID.
@@ -36,7 +39,7 @@ Clang/LLD e headers C/C++, CMake, Ninja, Git, Python, pkg-config, glslang, Qt 6 
 
 CMake busca Opus, OpenXR SDK, xbyak, Zydis/zycore, zstd e ZArchive em commits definidos em `3rdparty/CMakeLists.txt`. FFmpeg estático vem do release do commit do submódulo `KytyPS5/ext-ffmpeg-core`; não é instalado FFmpeg do sistema. Não são necessários BIOS, firmware, jogos ou chaves Sony para compilar/testar o conjunto headless.
 
-Extras de desenvolvimento dentro da imagem: ccache, clang-tidy, clang-format, GDB e file. Este ambiente não instala Qt nem compiladores no host. A versão de clang-format da distribuição difere do hook oficial `v22.1.3`: não formate o repositório inteiro e use o hook oficial em ambiente isolado antes de submeter C++ ao upstream. Nenhum hook que instale dependências no Windows foi ativado.
+Extras de desenvolvimento dentro da imagem dev: ccache, clang-tidy, clang-format da distribuição, GDB e file. Para formatar C++, use exclusivamente `quality`, com `pre-commit 4.7.0`, o mirror oficial e `clang-format 22.1.3` fixados. A ferramenta da distribuição não substitui a versão do hook. Nenhum desses pacotes foi instalado no Windows.
 
 O digest da base e os commits externos fixam entradas importantes, mas apt usa os repositórios Debian correntes e o download FFmpeg do upstream não fixa SHA-256 no CMake. A receita é reproduzível operacionalmente, não um build hermético ou idêntico byte a byte. Guarde o manifesto `dpkg-query -W`, ID da imagem e checksums dos artefatos ao comparar builds. Mudanças upstream podem exigir reconstruir a imagem.
 
@@ -55,6 +58,8 @@ docker compose run --no-deps -T dev bash scripts/analyze.sh Debug
 
 `test.sh headless` compila e executa explicitamente os 15 testes escolhidos na CI Linux oficial: áudio de porta, haptics, controles, host input, IME, LRU, rastreamento de memória, páginas, recursos, proveniência, materialização, metadados de shader, arquivos de archive/avplayer e memória virtual. Não exige jogos ou uma GPU passada ao container. `ctest` falha se nenhum teste for encontrado. Logs persistem mesmo quando a compilação falha.
 
+`bash scripts/test.sh Release extended-headless` amplia a seleção para 32 testes oficiais existentes, incluindo arquivos, áudio simulado, imagem/páginas, saves, diálogos, CES, CLI e o patcher de red zone. A seleção passou em Release nesta máquina. É um conjunto local adicional, não a suíte completa nem uma alteração na CI oficial. Existem 57 testes registrados no Linux neste baseline.
+
 ```powershell
 docker compose run --no-deps -T dev bash scripts/test.sh Debug all
 ```
@@ -71,6 +76,23 @@ Para instalar os artefatos **Linux** dentro do volume:
 docker compose run --no-deps -T dev cmake --install /build/Release --prefix /build/Release/install
 docker compose run --no-deps -T dev /build/Release/kyty_emulator --help
 ```
+
+## Formatação oficial pelo Docker
+
+```powershell
+docker compose build quality
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\scripts\install-hooks.ps1
+docker compose run --no-deps -T quality python3 scripts/format.py check src/common/dateTime.cpp
+docker compose run --no-deps -T quality python3 scripts/format.py apply src/common/dateTime.cpp
+```
+
+Os dois últimos comandos verificam ou formatam somente os arquivos indicados; não são uma solicitação para modificar esse arquivo de exemplo. `check` não escreve. `apply` e o hook usam o `pre-commit run clang-format --files ...` com a configuração original, sem modificá-la. A primeira execução prepara o ambiente oficial em `/cache/pre-commit`; as seguintes reutilizam o cache.
+
+O shim `.git/hooks/pre-commit` chama o serviço quality quando há `.cpp`, `.h` ou `.inc` staged em `src`, conforme o filtro oficial. O container lê `.git`, sem permissão para escrever no índice. Arquivos parcialmente staged, conflitos, configurações alteradas e índices alternativos (`git commit -a/--only`) são recusados, preservando o estado para revisão. Use `git add` seguido de `git commit`. Quando o hook formata um arquivo, o commit falha como no procedimento oficial; revise o diff e faça `git add` novamente. Não há staging automático nem descarte de mudanças.
+
+O instalador é idempotente e recusa substituir hooks diferentes ou `core.hooksPath` personalizado. Ele conecta o hook original ao Docker por um shim próprio, pois o comando literal do README instalaria Python/pre-commit no host. Cinco testes de integração exercitaram o formatador oficial e a preservação do índice; o shim também foi validado no Git for Windows. Não formate o repositório inteiro para corrigir código fora da tarefa.
+
+## Diagnóstico
 
 O build Debug contém símbolos. GDB existe no container, mas depuração com ptrace pode ser limitada pelas capacidades/seccomp. Não são concedidos `SYS_PTRACE` ou modo privilegiado automaticamente. Para erros de compilação, leia o primeiro erro do log, confira submódulos com `status.ps1` e versões de ferramentas no container. Corrija a causa sem apagar caches indiscriminadamente.
 

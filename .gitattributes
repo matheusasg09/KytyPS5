@@ -3,3 +3,4 @@ scripts/*.ps1 text eol=crlf
 scripts/*.py text eol=lf
 Dockerfile text eol=lf
 compose.yaml text eol=lf
+scripts/pre-commit text eol=lf

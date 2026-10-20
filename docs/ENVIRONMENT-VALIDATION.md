@@ -1,5 +1,7 @@
 # Validação do ambiente, 2026-10-20
 
+Este relatório registra a preparação inicial e a validação autorizada de persistência. A revisão posterior, com hook oficial pelo Docker e **32/32 testes Release**, está em [UPSTREAM-REVIEW.md](UPSTREAM-REVIEW.md). Os IDs das imagens após essa revisão estão no manifesto local `.local/upstream-review-validation.json`.
+
 ## Escopo e origem
 
 Projeto: `C:/Users/mathe/projetos/emulador-ps5`. A pasta estava vazia, sem Git e sem arquivos do usuário. Foi clonado o histórico completo de `https://github.com/KytyPS5/KytyPS5.git`, sem shallow clone do repositório principal, com seus 14 submódulos nas revisões oficiais. Referência inicial: `7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3`. A branch padrão foi conferida pela API GitHub e por `git ls-remote --symref`: `main`.
@@ -11,7 +13,7 @@ Foram lidos README completo (build, testes, contribuições e IA), CMake princip
 - Windows AMD64; Git `2.56.0.windows.2`; Windows PowerShell `5.1.26100.9711`.
 - Docker Desktop estava parado. Iniciado pelo comando existente `docker desktop start --timeout 120`, sem instalação, troca de backend ou configuração global.
 - Engine `29.8.2`, Compose `5.5.1`, contexto `desktop-linux`, containers Linux x86-64; 16 CPUs e 16.730.976.256 bytes de memória disponíveis ao Engine.
-- Imagem `kytyps5-dev:debian13` construída com sucesso. ID inicial usado pelos builds: `sha256:3d898ec2bffd157eb15edd3cf8538a8273e3d0f18baa90008f2dc709ea6e1a54`. Setup completo também executado no PowerShell com build pelo cache; ID atual: `sha256:323ab9c9ccbaab8af66f49ef203e88fa748f396534ff20e298e22f948ba9d988`, tamanho lógico 1.575.425.304 bytes. A imagem atual passou novamente no smoke de ferramentas, UID, arquitetura, scripts e persistência.
+- Imagem `kytyps5-dev:debian13` construída com sucesso. ID inicial usado pelos builds: `sha256:3d898ec2bffd157eb15edd3cf8538a8273e3d0f18baa90008f2dc709ea6e1a54`. Setup completo também executado no PowerShell com build pelo cache; ID após o setup inicial: `sha256:323ab9c9ccbaab8af66f49ef203e88fa748f396534ff20e298e22f948ba9d988`, tamanho lógico 1.575.425.304 bytes. Essa imagem passou novamente no smoke de ferramentas, UID, arquitetura, scripts e persistência.
 - Base Debian 13.1 slim fixada pelo digest do manifesto `sha256:a347fd7510ee31a84387619a492ad6c8eb0af2f2682b916ff3e643eb076f925a`.
 - Compose validado. UID 1000 confirmado em execução; filesystem de imagem e metadados Git somente leitura, todas as capacidades removidas, no-new-privileges, nenhuma porta publicada ou credencial montada. Limites: 4 CPUs, 10 GiB, 512 PIDs.
 - Não foram executados comandos WSL nem alterados Hyper-V, Docker global, serviços Windows ou política global de execução. `RemoteSigned` foi usado somente nos processos PowerShell que validaram os scripts locais.

@@ -32,5 +32,9 @@ Invoke-Checked -Command git -Arguments @('-C',$script:ProjectRoot,'branch',"--se
 $dirty = Get-GitText -Arguments @('submodule', 'foreach', '--recursive', '--quiet', 'git status --porcelain')
 if ($dirty) { throw 'Submódulo com alterações locais. Preparação interrompida.' }
 Invoke-Checked -Command git -Arguments @('-C', $script:ProjectRoot, '-c', 'protocol.allow=never', '-c', 'protocol.https.allow=always', 'submodule', 'update', '--init', '--recursive', '--jobs', '4')
-if (-not $SkipImageBuild) { Invoke-Compose -Arguments @('build') }
+if (-not $SkipImageBuild) {
+    Invoke-Compose -Arguments @('build')
+    & "$PSScriptRoot/install-hooks.ps1"
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao conectar o hook Docker.' }
+}
 Write-Host 'Preparação concluída. Nenhuma branch existente foi movida. Desenvolva em develop ou em uma branch de trabalho.'

@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     user: "1000:1000"
     working_dir: /workspace
     init: true
@@ -40,6 +41,46 @@ services:
       - builds:/build
       - caches:/cache
       - logs:/logs
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+  quality:
+    image: kytyps5-quality:debian13
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: quality
+    user: "1000:1000"
+    working_dir: /workspace
+    init: true
+    restart: "no"
+    cpus: 1.0
+    mem_limit: 2g
+    memswap_limit: 2g
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+      - /home/developer:size=32m,uid=1000,gid=1000
+    environment:
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /workspace
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+      - type: bind
+        source: ./.git
+        target: /workspace/.git
+        read_only: true
+      - caches:/cache
     logging:
       driver: local
       options:
