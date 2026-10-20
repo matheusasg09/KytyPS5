@@ -6,3 +6,10 @@ _Build/vscode-clang/
 _Build/
 cmake-build-debug/
 _PipelineCache/
+
+# Ambiente local KytyPS5, adicionado em 2026-10-20.
+.local/
+docker-image-build.log
+validation-*.log
+.env
+dependencies-manifest.local.txt

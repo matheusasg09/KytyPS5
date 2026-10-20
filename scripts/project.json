@@ -1,0 +1,6 @@
+{
+  "upstream": "https://github.com/KytyPS5/KytyPS5.git",
+  "origin": "https://github.com/matheusasg09/KytyPS5.git",
+  "officialBranch": "main",
+  "developmentBranch": "develop"
+}

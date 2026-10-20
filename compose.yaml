@@ -1,0 +1,51 @@
+name: kytyps5-dev
+services:
+  dev:
+    image: kytyps5-dev:debian13
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    working_dir: /workspace
+    init: true
+    stdin_open: true
+    tty: true
+    restart: "no"
+    cpus: 4.0
+    mem_limit: 10g
+    memswap_limit: 10g
+    pids_limit: 512
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+      - /home/developer:size=32m,uid=1000,gid=1000
+    environment:
+      # Repository ownership differs on Windows bind mounts. No credentials are mounted.
+      GIT_CONFIG_COUNT: "2"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /workspace
+      GIT_CONFIG_KEY_1: safe.directory
+      GIT_CONFIG_VALUE_1: /workspace/3rdparty/ffmpeg-core
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+      - type: bind
+        source: ./.git
+        target: /workspace/.git
+        read_only: true
+      - builds:/build
+      - caches:/cache
+      - logs:/logs
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+volumes:
+  builds:
+  caches:
+  logs:
