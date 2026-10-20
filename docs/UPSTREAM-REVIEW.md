@@ -2,6 +2,8 @@
 
 ## Decisão de plataforma
 
+Direção do fork reafirmada após a revisão: **Windows é o alvo principal de desenvolvimento e validação deste fork**. Docker Linux permanece como ambiente auxiliar de builds e regressões. Isso é uma escolha para o computador e objetivo do projeto, sem atribuir ao upstream uma preferência exclusiva que o README consultado não declara.
+
 O [README oficial](https://github.com/KytyPS5/KytyPS5/blob/7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3/README.md) declara Windows e Linux como plataformas principais, ambas com testes frequentes. Não exige nem recomenda escolher Linux em vez de Windows. A tradução de código x86-64 e o renderer exigem CPU/ambiente compatíveis e uma GPU Vulkan 1.3 com driver adequado.
 
 A escolha Docker Linux atende ao requisito inicial de isolar a toolchain sem mudar o backend existente. O README aceita pacotes da distribuição Linux e o procedimento usa Clang, CMake/Ninja, submódulos, launcher e instalação. O ambiente não é uma reprodução exata do runner oficial Ubuntu 24.04: usa Debian 13, Clang 19, Qt 6.8.2 e ccache. A CI usa Qt 6.10.3, sccache e IPO/LTO em Release. Qt 6.8.2 atende ao mínimo 6.8 do CMake e ao caminho de pacotes da distribuição permitido pelo README. Essas diferenças devem entrar na investigação de falhas sensíveis à toolchain; não foram escondidas nem tratadas como equivalência binária.
@@ -16,6 +18,10 @@ Para este computador, a recomendação técnica é:
 4. Exigir testes Windows e Linux para alterações em código compartilhado, conforme a política upstream.
 
 Uma ISO é mídia de instalação, não um ambiente que o Docker Linux executa como Windows nativo. Uma VM acrescentaria sistema, armazenamento, licença e configuração de GPU. Só seria adequada para testes gráficos após comprovar Vulkan 1.3 no guest. O [suporte GPU do Docker Desktop](https://docs.docker.com/desktop/features/gpu/) documenta NVIDIA GPU-PV e workloads de computação no backend WSL 2; isso não comprova o Vulkan/desktop necessário ao emulador. [Windows containers](https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/lift-shift-to-containers) não oferecem uma sessão desktop interativa. Não foram criados VM, ISO, Docker Windows, passthrough ou alterações de Hyper-V/WSL.
+
+Inspeção posterior das opções locais: hypervisor presente e VirtualMachinePlatform habilitado; os componentes Hyper-V, ferramentas de gerenciamento e Windows Sandbox estão desabilitados. Get-VM, VBoxManage, vmrun e QEMU não foram encontrados no PATH; os executáveis também não estavam nos caminhos usuais inspecionados. Isso não prova ausência em qualquer outro diretório. Nenhum desses componentes foi ativado, instalado ou iniciado.
+
+Há dois caminhos Windows distintos: um runner fornece uma máquina Windows real para compilar/testar sem modificar o host; uma VM local permite ciclos locais de build e depuração de CPU, mas exige preparar hypervisor, sistema/licença e armazenamento. Em ambos, os testes gráficos podem usar o pacote completo no Windows físico com a RTX 5060, sem instalar compiladores ou Qt de desenvolvimento no host. Não é necessário passar a GPU à VM apenas para compilar. A criação de uma VM local ou ativação do Hyper-V depende de autorização específica, pois a instrução inicial proíbe essas mudanças globais. A autorização para executar o runner continua pendente; esta discussão não foi interpretada como aprovação.
 
 ## Conferência dos requisitos oficiais
 

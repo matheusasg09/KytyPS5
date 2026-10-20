@@ -7,6 +7,7 @@ Leia também as políticas globais e C:/Users/mathe/projetos/AGENTS.md.
 - Preserve C++20, Clang, padrões existentes, avisos de copyright e licenças. Não faça refatorações amplas sem necessidade.
 - Para C++ use somente o formatador oficial 22.1.3 pelo serviço quality e o hook conectado por scripts/install-hooks.ps1. Não use clang-format da imagem dev nem formate o repositório inteiro. Preserve índices e arquivos parcialmente staged; nunca burle o hook.
 - Não instale compiladores, Qt, SDKs ou dependências no Windows. Use Docker e o backend existente, sem configurar WSL ou alterar Docker globalmente.
+- Windows é o alvo principal deste fork; Docker Linux serve como ambiente auxiliar de build/regressão. Compile Windows em runner/VM Windows isolado quando autorizado e valide gráficos no Windows com GPU real. Não confunda essa prioridade com autorização para instalar toolchain no host, ativar Hyper-V, criar VM ou executar Actions.
 - Trabalhe em develop ou feature/*, fix/* e experiment/*. Nunca implemente mudanças cotidianas em main, que acompanha upstream/main.
 - Preserve o histórico oficial. Sincronize por scripts/sync-upstream.ps1. Não use reset --hard, rebase, amend, force push, descarte de conflitos ou escolha automática de um lado.
 - Não faça push, publique releases, abra issues/PRs ou crie repositórios sem autorização explícita. Ambos os push URLs ficam bloqueados por padrão.
