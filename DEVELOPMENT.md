@@ -2,9 +2,9 @@
 
 Ambiente preparado em 2026-10-20 a partir de `KytyPS5/KytyPS5`, commit `7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3`, branch oficial **main**. Consulte `docs/ENVIRONMENT-VALIDATION.md` para resultados observados e pendências. O código do emulador não foi alterado.
 
-A revisão posterior do procedimento oficial e a decisão Windows/Linux estão em [docs/UPSTREAM-REVIEW.md](docs/UPSTREAM-REVIEW.md). Windows e Linux são plataformas principais do upstream. Docker Linux atende builds e testes sem GPU; neste computador, a rota proposta para testar gráficos é compilar Windows em runner isolado e executar o pacote portátil com a GPU nativa, sem toolchain no host. Essa etapa remota ainda não foi autorizada nem executada.
+Docker Linux x86-64 é o ambiente principal deste fork. O usuário cancelou a preparação Windows em 2026-10-20; não há migração, reinstalação do Docker, VM, Hyper-V ou execução de Actions pendentes. O código, as imagens e os volumes existentes ficam preservados.
 
-O pedido posterior de usar Docker para a toolchain Windows está analisado em [docs/WINDOWS-DOCKER-PLAN.md](docs/WINDOWS-DOCKER-PLAN.md). Foi identificado um bloqueio adicional: a instalação atual do Docker é por usuário e só oferece engine Linux. Windows containers exigem outra modalidade de instalação. Essa migração continua sem autorização; o ambiente abaixo permanece Linux, sem ser apresentado como Windows 11.
+A revisão do procedimento oficial está em [docs/UPSTREAM-REVIEW.md](docs/UPSTREAM-REVIEW.md). Builds Debug/Release Linux foram concluídos e 32 testes extended-headless passaram em Release. A falha Debug de fibers continua documentada. GUI, Vulkan na GPU e jogos ainda precisam de validação em ambiente Linux apropriado.
 
 ## Pré-requisitos e início
 
@@ -155,7 +155,7 @@ O pacote Linux foi compilado no Debian 13 e usa glibc/libstdc++ dinâmicos. A c�
 
 Para testar gráficos Linux, use um host Linux ou VM Linux com GPU Vulkan 1.3 efetivamente validada e artefatos compatíveis. Para testar no Windows, produza binários Windows separadamente e execute-os no Windows com o driver Vulkan da GPU. Não instale dependências de build no host atual.
 
-A alternativa menos invasiva para Windows é um runner Windows isolado, seguindo o job `windows-2022` de `.github/workflows/build.yml`: Visual Studio/Build Tools 2022 com ambiente x64 e clang-cl, CMake, Ninja, Python, glslang e Qt 6.10.3 MSVC 2022 x64. Use os mesmos comandos de configure/build/install do README, trocando apenas o diretório de saída. Preserve os fontes e licenças correspondentes. Uma VM Windows separada também serve, mas não foi criada/configurada. Cross-compilation MinGW não é o caminho validado da CI e não foi apresentada como equivalente a clang-cl/Windows SDK.
+Como referência de compatibilidade, o workflow oficial também contém um job `windows-2022`, com ambiente x64, clang-cl e Qt MSVC 2022. Isso exige uma toolchain Windows separada; não é uma capacidade deste Docker Linux. A preparação dessa alternativa foi cancelada e não deve ser retomada automaticamente. Cross-compilation MinGW não foi validada nem apresentada como equivalente a clang-cl/Windows SDK.
 
 O workflow original foi preservado e não disparado. Criar fork, habilitar/executar Actions, enviar código e consumir runner pago exigem as autorizações aplicáveis. No fork público, o workflow original não publica releases, pois o job de release é restrito a `KytyPS5/KytyPS5`. Verifique custos e política antes de execução. Nenhuma execução remota Windows foi feita nesta preparação.
 

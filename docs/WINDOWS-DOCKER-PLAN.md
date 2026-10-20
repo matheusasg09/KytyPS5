@@ -1,5 +1,7 @@
 # Windows 11 e Docker: requisitos e bloqueios verificados
 
+**CANCELADO pelo usuário em 2026-10-20.** Não executar este plano. O ambiente principal voltou a ser Docker Linux; este rascunho está fora do fluxo ativo e aguarda somente confirmação separada para exclusão física.
+
 Estado em 2026-10-20: **planejamento e leitura concluídos; ambiente Windows ainda não provisionado**. Não foi trocado backend, reinstalado Docker, ativado Hyper-V/Containers ou instalado SDK no host. O ambiente Linux existente fica preservado.
 
 ## Documentação oficial lida integralmente

@@ -2,7 +2,7 @@
 
 ## Decisão de plataforma
 
-Direção do fork reafirmada após a revisão: **Windows é o alvo principal de desenvolvimento e validação deste fork**. Docker Linux permanece como ambiente auxiliar de builds e regressões. Isso é uma escolha para o computador e objetivo do projeto, sem atribuir ao upstream uma preferência exclusiva que o README consultado não declara.
+Decisão vigente do usuário em 2026-10-20: **Docker Linux x86-64 é o ambiente principal deste fork**. A preparação Windows e as propostas de migração do Docker, VM e runner foram canceladas. Não estão aguardando aprovação nem devem ser retomadas automaticamente.
 
 O [README oficial](https://github.com/KytyPS5/KytyPS5/blob/7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3/README.md) declara Windows e Linux como plataformas principais, ambas com testes frequentes. Não exige nem recomenda escolher Linux em vez de Windows. A tradução de código x86-64 e o renderer exigem CPU/ambiente compatíveis e uma GPU Vulkan 1.3 com driver adequado.
 
@@ -10,18 +10,18 @@ A escolha Docker Linux atende ao requisito inicial de isolar a toolchain sem mud
 
 Inventário de leitura nesta revisão: Windows 11 Pro x64, Ryzen 7 5700X (8 cores/16 threads), cerca de 32 GiB RAM e NVIDIA GeForce RTX 5060, driver 617.42. O `vulkaninfo.exe` já existente confirmou API Vulkan 1.4.351 da GPU, acima do mínimo 1.3. Não foi instalado SDK, driver ou compilador. Isso comprova a API exposta pelo driver Windows, sem comprovar todas as extensões/features exigidas pelos jogos nem o runtime KytyPS5.
 
-Para este computador, a recomendação técnica é:
+O fluxo de trabalho vigente é:
 
 1. Manter Docker Linux para builds e regressões de CPU, memória, filesystem e lógica de shaders.
-2. Compilar a versão Windows em runner isolado usando o procedimento oficial.
-3. Baixar o pacote completo para uma pasta própria do projeto e testar a GUI/Vulkan no Windows com a GPU física, sem instalar toolchain no host.
-4. Exigir testes Windows e Linux para alterações em código compartilhado, conforme a política upstream.
+2. Usar o serviço quality para o hook oficial de formatação, mantendo todas as dependências isoladas.
+3. Investigar a falha de fibers em Debug sem ocultar o teste nem alterar a toolchain global do Windows.
+4. Validar mudanças nas plataformas afetadas antes de qualquer contribuição externa; a política upstream de compatibilidade Windows/Linux permanece relevante, mas não autoriza iniciar builds remotos ou migrar o ambiente.
 
 Uma ISO é mídia de instalação, não um ambiente que o Docker Linux executa como Windows nativo. Uma VM acrescentaria sistema, armazenamento, licença e configuração de GPU. Só seria adequada para testes gráficos após comprovar Vulkan 1.3 no guest. O [suporte GPU do Docker Desktop](https://docs.docker.com/desktop/features/gpu/) documenta NVIDIA GPU-PV e workloads de computação no backend WSL 2; isso não comprova o Vulkan/desktop necessário ao emulador. [Windows containers](https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/lift-shift-to-containers) não oferecem uma sessão desktop interativa. Não foram criados VM, ISO, Docker Windows, passthrough ou alterações de Hyper-V/WSL.
 
 Inspeção posterior das opções locais: hypervisor presente e VirtualMachinePlatform habilitado; os componentes Hyper-V, ferramentas de gerenciamento e Windows Sandbox estão desabilitados. Get-VM, VBoxManage, vmrun e QEMU não foram encontrados no PATH; os executáveis também não estavam nos caminhos usuais inspecionados. Isso não prova ausência em qualquer outro diretório. Nenhum desses componentes foi ativado, instalado ou iniciado.
 
-Há dois caminhos Windows distintos: um runner fornece uma máquina Windows real para compilar/testar sem modificar o host; uma VM local permite ciclos locais de build e depuração de CPU, mas exige preparar hypervisor, sistema/licença e armazenamento. Em ambos, os testes gráficos podem usar o pacote completo no Windows físico com a RTX 5060, sem instalar compiladores ou Qt de desenvolvimento no host. Não é necessário passar a GPU à VM apenas para compilar. A criação de uma VM local ou ativação do Hyper-V depende de autorização específica, pois a instrução inicial proíbe essas mudanças globais. A autorização para executar o runner continua pendente; esta discussão não foi interpretada como aprovação.
+O inventário Windows acima é histórico da análise, não um plano de execução. Nenhum recurso do host foi alterado. A proposta de runner/VM foi cancelada, junto com a migração de instalação do Docker.
 
 ## Conferência dos requisitos oficiais
 
@@ -54,20 +54,13 @@ Imagens e containers desta revisão não alteram a validação anterior de remo�
 
 Setup completo com build pelo cache e instalação idempotente do hook passou no Windows PowerShell 5.1. O parser dos scripts, status e a simulação de sincronização/bootstrap também passaram após os ajustes. A configuração Compose e os containers foram conferidos quanto a UID, limites, mounts e root filesystem somente leitura. Evidências locais: `validation-review-*.log` e `.local/upstream-review-validation.json` com IDs/tamanhos das imagens e resultados, ignorados pelo Git. As camadas compartilhadas evitam duplicar a toolchain entre os serviços.
 
-## Próximo teste Windows, preparado mas não executado
+## Análise Windows cancelada
 
-O fork `matheusasg09/KytyPS5` e sua main foram verificados. A API de permissões informa Actions enabled, mas a lista de workflows do fork estava vazia nesta revisão. Não foi iniciada autenticação nem alterada configuração da conta. É necessário habilitar/registrar o workflow herdado no fork antes de dispará-lo.
+O fork `matheusasg09/KytyPS5` e sua main foram verificados durante a análise. Nenhum workflow foi habilitado ou executado por esta preparação. O usuário cancelou esse caminho e não existe autorização pendente a solicitar para Actions.
 
 O [workflow original](https://github.com/KytyPS5/KytyPS5/blob/7b7f9a70c652afd6ec8ea8599884d9b4b3abc9f3/.github/workflows/build.yml) já tem workflow_dispatch. Sua execução manual em main constrói **Windows, Linux e macOS**, não apenas Windows. O job Windows usa windows-2022, ambiente MSVC x64, clang-cl, Ninja, glslang e Qt 6.10.3 MSVC 2022 x64, constrói launcher/testes, executa a seleção Windows e reúne o pacote com cmake --install.
 
-Após autorização específica para habilitar e executar esse workflow no fork:
-
-```powershell
-gh workflow run build.yml --repo matheusasg09/KytyPS5 --ref main
-gh run list --repo matheusasg09/KytyPS5 --workflow build.yml --limit 5
-```
-
-Acompanhar o run exato, exigir SHA de base esperado e resultado Windows bem-sucedido, baixar apenas KytyPS5-Windows-x64 para `.local/windows-runtime/<run-id>` e verificar os artefatos antes de executar. Esse teste usaria o código oficial já presente no fork; os commits locais de infraestrutura não precisam de push. Não se deve declarar que alterações futuras locais foram testadas por esse build da main.
+Os comandos para disparar esse teste foram retirados do fluxo ativo. As instruções e os commits anteriores permanecem no histórico Git para consulta, sem autorizar sua execução.
 
 O job de release é restrito ao repositório oficial e evento push: workflow_dispatch no fork não publica release. Os runners configurados são os padrões do GitHub; seu uso em repositório público é gratuito segundo a [documentação de cobrança](https://docs.github.com/en/billing/concepts/product-billing/github-actions). Artefatos/cache têm regras próprias de armazenamento e devem ser conferidos antes de iniciar; não habilitar cobrança ou recursos pagos. Não houve execução remota nesta revisão.
 

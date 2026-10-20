@@ -13,6 +13,7 @@ param(
     [ValidateRange(1,4)][int]$Jobs = 4,
     [switch]$Plan
 )
+throw 'Preparação Windows cancelada pelo usuário. Use o serviço Docker Linux dev e scripts/build.sh ou scripts/test.sh.'
 . "$PSScriptRoot/common.ps1"
 Assert-Project
 $build = Join-Path $BuildRoot $Configuration
