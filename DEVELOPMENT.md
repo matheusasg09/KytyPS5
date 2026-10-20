@@ -4,6 +4,8 @@ Ambiente preparado em 2026-10-20 a partir de `KytyPS5/KytyPS5`, commit `7b7f9a70
 
 A revisão posterior do procedimento oficial e a decisão Windows/Linux estão em [docs/UPSTREAM-REVIEW.md](docs/UPSTREAM-REVIEW.md). Windows e Linux são plataformas principais do upstream. Docker Linux atende builds e testes sem GPU; neste computador, a rota proposta para testar gráficos é compilar Windows em runner isolado e executar o pacote portátil com a GPU nativa, sem toolchain no host. Essa etapa remota ainda não foi autorizada nem executada.
 
+O pedido posterior de usar Docker para a toolchain Windows está analisado em [docs/WINDOWS-DOCKER-PLAN.md](docs/WINDOWS-DOCKER-PLAN.md). Foi identificado um bloqueio adicional: a instalação atual do Docker é por usuário e só oferece engine Linux. Windows containers exigem outra modalidade de instalação. Essa migração continua sem autorização; o ambiente abaixo permanece Linux, sem ser apresentado como Windows 11.
+
 ## Pré-requisitos e início
 
 No Windows são usados somente Git, GitHub CLI, PowerShell e o Docker Desktop existentes. Compiladores, bibliotecas e ferramentas de diagnóstico ficam na imagem. Não configure WSL, Hyper-V, SDKs ou outro backend. Se o Engine estiver parado, inicie o Docker Desktop existente; `docker desktop start` usa sua configuração atual. O serviço exige Linux x86-64.
